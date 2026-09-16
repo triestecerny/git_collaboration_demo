@@ -1,0 +1,43 @@
+name: Seed demo issue
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  seed-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue 1 if needed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_BODY: |
+            ## Outcome
+
+            Add `data_range(values)` to `stats_helpers.py`.
+
+            ## Why it matters
+
+            A caller should be able to summarize the spread between the smallest and largest values without adding another package.
+
+            ## Acceptance criteria
+
+            - [ ] Return the difference between the largest and smallest values.
+            - [ ] Keep the function independent of external packages.
+            - [ ] Use a descriptive commit message.
+        run: |
+          issue_count="$(gh issue list --state all --json title --jq '[.[] | select(.title == "Add a data range helper")] | length')"
+
+          if [ "$issue_count" -gt 0 ]; then
+            echo "The demonstration issue already exists."
+            exit 0
+          fi
+
+          gh issue create \
+            --title "Add a data range helper" \
+            --body "$ISSUE_BODY"
+
